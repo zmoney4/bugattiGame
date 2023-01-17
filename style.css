@@ -18,11 +18,20 @@
 .car
 {
     width: 50px;
-    height: 80px;
-    background-color: black;
+    height: 100px;
     position: absolute;
     bottom: 120px;
     background-image: url(img/bugatti.png);
+    background-size: cover;
+}
+
+.enemy
+{
+    width: 50px;
+    height: 100px;
+    position: absolute;
+    bottom: 120px;
+    background-image: url(img/enemy.png);
     background-size: cover;
 }
 
@@ -34,5 +43,3 @@
     background-color: white;
     margin-left: 195px;
 }
-
-
