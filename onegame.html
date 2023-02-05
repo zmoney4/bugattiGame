@@ -8,7 +8,7 @@
     <script defer type="text/javascript" src="./script.js"></script>
     
     <style>
-  .container
+.container
 {
     background-color: green;
     background-size: cover;
@@ -29,7 +29,6 @@
 {
     width: 50px;
     height: 100px;
-    
     position: absolute;
     bottom: 120px;
     background-image: url(img/bugatti.png);
@@ -40,7 +39,6 @@
 {
     width: 50px;
     height: 100px;
-    background-color: black;
     position: absolute;
     bottom: 120px;
     background-image: url(img/enemy.png);
@@ -70,6 +68,26 @@ let player = {step : 5};
 let keys = {arrowUp: false, arrowDown: false, arrowLeft: false, arrowRight: false}
 document.addEventListener('keydown', keyDown);
 document.addEventListener('keyup', keyUp);
+
+// I found this on the internet. this is a workaround becasue this is supposed to be a built in js function but does not work becasue this is canvas.
+function getBoundingClientRect(element) {
+  let rect = {
+    top: element.offsetTop,
+    left: element.offsetLeft,
+    width: element.offsetWidth,
+    height: element.offsetHeight
+  };
+
+  let parent = element.offsetParent;
+  while (parent) {
+    rect.top += parent.offsetTop;
+    rect.left += parent.offsetLeft;
+    parent = parent.offsetParent;
+  }
+
+  return rect;
+}
+
 
 function keyDown(ev)
 {
@@ -114,6 +132,24 @@ function moveEnemies()
 }
 
 
+function checkCollision() {
+  let playerCar = document.querySelector(".car");
+  let enemyCars = document.querySelectorAll(".enemy");
+  
+  enemyCars.forEach(function(item) {
+    let playerRect = playerCar.getBoundingClientRect();
+    let enemyRect = item.getBoundingClientRect();
+    
+    if (playerRect.left < enemyRect.right &&
+        playerRect.right > enemyRect.left &&
+        playerRect.top < enemyRect.bottom &&
+        playerRect.bottom > enemyRect.top) {
+      player.start = false;
+    }
+  });
+}
+
+
 function playArea()
 {
     let playerCar = document.querySelector('.car');
@@ -122,6 +158,11 @@ function playArea()
     {
         moveLines();
         moveEnemies();
+
+        checkCollision();
+  if (!player.start) {
+    return;
+  }
 
         if(keys['ArrowUp'] && player.y > (road.top))
         {

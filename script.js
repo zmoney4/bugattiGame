@@ -4,6 +4,26 @@ let keys = {arrowUp: false, arrowDown: false, arrowLeft: false, arrowRight: fals
 document.addEventListener('keydown', keyDown);
 document.addEventListener('keyup', keyUp);
 
+// I found this on the internet. this is a workaround becasue this is supposed to be a built in js function but does not work becasue this is canvas. 
+function getBoundingClientRect(element) {
+  let rect = {
+    top: element.offsetTop,
+    left: element.offsetLeft,
+    width: element.offsetWidth,
+    height: element.offsetHeight
+  };
+
+  let parent = element.offsetParent;
+  while (parent) {
+    rect.top += parent.offsetTop;
+    rect.left += parent.offsetLeft;
+    parent = parent.offsetParent;
+  }
+
+  return rect;
+}
+
+
 function keyDown(ev)
 {
     keys[ev.key] = true;
@@ -19,36 +39,49 @@ function moveLines()
     let roadLines = document.querySelectorAll('.line');
     roadLines.forEach(function(item)
     {
-        if (item.y >= 750)
+        if (item.y >= 700)
         {
-            item.y = item.y - 850;
+            item.y = item.y - 750;
         }
-        item.y = item.y + 8;
+        item.y = item.y + player.step;
         item.style.top = item.y + 'px';
     })
 }
 
-function moveEnemies(playerCar)
+function moveEnemies()
 {
+    console.log("move enemies has been called");
     let enemies =  document.querySelectorAll('.enemy');
-    playerCarBound = getBoundingClientRect();
     enemies.forEach(function(item)
     {
         if (item.y > 750)
         {
-            enemyCarBound = item.getBoundingClientRect();
-            if ((playerCarBound.bottom > enemyCarBound.top) ||  (playerCarBound.top > enemyCarBound.bottom) || (playerCarBound.left > enemyCarBound.right) || (playerCarBound.right > enemyCarBound.left))
-            {
-                console.log("YOU LOSE")
-            }
             item.y = -300;
             var leftEnemy = Math.floor(Math.random() * 350) + 'px'; 
             item.style.left = leftEnemy; 
             console.log(leftEnemy);
         }
-        item.y = item.y + 7;
+        item.y = item.y + player.step;
         item.style.top = item.y + 'px';
     })
+}
+
+
+function checkCollision() {
+  let playerCar = document.querySelector(".car");
+  let enemyCars = document.querySelectorAll(".enemy");
+  
+  enemyCars.forEach(function(item) {
+    let playerRect = playerCar.getBoundingClientRect();
+    let enemyRect = item.getBoundingClientRect();
+    
+    if (playerRect.left < enemyRect.right &&
+        playerRect.right > enemyRect.left &&
+        playerRect.top < enemyRect.bottom &&
+        playerRect.bottom > enemyRect.top) {
+      player.start = false;
+    }
+  });
 }
 
 
@@ -59,26 +92,31 @@ function playArea()
     if(player.start)
     {
         moveLines();
-        moveEnemies(playerCar);
+        moveEnemies();
+
+        checkCollision();
+  if (!player.start) {
+    return;
+  }
 
         if(keys['ArrowUp'] && player.y > (road.top))
         {
-            player.y = player.y - player.step;
+            player.y = player.y - .5 * (player.step);
         }
 
         if(keys['ArrowDown'] && player.y < (road.bottom - 90))
         {
-            player.y = player.y + player.step;
+            player.y = player.y + .5 * (player.step);
         }
 
         if(keys['ArrowLeft'] && player.x > 0)
         {
-            player.x = player.x - player.step;
+            player.x = player.x - .5 * (player.step);
         }
 
         if(keys['ArrowRight'] && player.x < (road.width - 64))
         {
-            player.x = player.x + player.step;
+            player.x = player.x + .5 * (player.step);
         }
 
         playerCar.style.top = player.y + 'px';
@@ -89,6 +127,7 @@ function playArea()
 
 function init()
 {
+
     player.start = true;
     window.requestAnimationFrame(playArea);
 
@@ -108,7 +147,7 @@ function init()
         roadArea.appendChild(roadLines)
     }
 
-    for (let x = 0; x < 5; x++)
+    for (let x = 0; x < 7; x++)
     {
         let enemy = document.createElement('div');
         enemy.setAttribute('class', 'enemy');
@@ -125,3 +164,4 @@ function init()
 }
 
 init();
+
